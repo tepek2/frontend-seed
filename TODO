@@ -1,0 +1,3 @@
+minimalizovat projekt (jaké komponenty skutečně používám)
+npm check which module is really used
+předělat na webpack
