@@ -1,72 +1,66 @@
-import React from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import styled from 'styled-components';
+import { SplitPaneProps, VERTICAL, HORIZONTAL } from './splitPaneTypes';
+export { Pane } from './pane';
 
-const VERTICAL = 'vertical';
-const HORIZONTAL = 'horizontal';
+const defaultState = {
+    orientation: '',
+};
 
+const SharedComponentContext: React.Context<any> = createContext({
+    state: defaultState,
+    setState: () => {},
+});
 
-const FlexStyle = {
-    [VERTICAL]: 'display: flex; flex-direction: row;',
-    [HORIZONTAL]: 'display: flex; flex-direction: column;',
-}
+export const useSharedState = () => {
+    const {state, setState} = useContext(SharedComponentContext);
 
-const DividerStyles = {
-    [VERTICAL]: 'cursor: col-resize; width: 10px; margin: 0 -5px;',
-    [HORIZONTAL]: 'cursor: row-resize; height: 10px; margin: -5px 0;',
-}
+    const setOrientation = (orientation: string) => setState('orientation', orientation);
 
-interface SplitPaneProps {
-    children: PaneType[]
-    orientation: 'vertical' | 'horizontal'
-}
+    return {state, setOrientation};
+};
 
-interface PaneProps {
-    children: any
-    size?: string
-    minSize?: string
-    maxSize?: string
-    orientation: 'vertical' | 'horizontal'
-}
-
-type PaneType = JSX.Element;
-
-export const Pane = ({
-    children,
-    size,
-    minSize,
-    maxSize,
-    orientation,
-}: PaneProps): PaneType => {
-    const paneStyle = {
-        [VERTICAL]: `width: ${size}`,
-        [HORIZONTAL]: `height: ${size}`,
+export const SplitPane = ({ children, orientation }: SplitPaneProps) => {
+    const FlexStyle = {
+        [VERTICAL]: 'display: flex; flex-direction: row;',
+        [HORIZONTAL]: 'display: flex; flex-direction: column;',
     };
 
-    const Div = styled.div`${paneStyle[orientation]}`;
-
-    return (
-        <Div>
-            {children}
-        </Div>
-    )
-}
-
-
-export const SplitPane = ({
-    children,
-    orientation,
-}: SplitPaneProps) => {
+    const DividerStyles = {
+        [VERTICAL]: 'cursor: col-resize; width: 10px; margin: 0 -5px;',
+        [HORIZONTAL]: 'cursor: row-resize; height: 10px; margin: -5px 0;',
+    };
 
     const Div = styled.div`${FlexStyle[orientation]}`
     const Divider = styled.span`${DividerStyles[orientation]}`
 
-    const panes = children.map((child) => React.cloneElement(child, {orientation}));
+    const [state, setState] =useState({ ...defaultState, orientation }); 
     
+    const [contextValue, setContextValue] = useState({
+        state,
+        setState: (key: string, val: string) => {
+            setState(state => {
+                return { ...state, [key]: val};
+            });
+        }
+    });
+
+    useEffect(() => {
+        setContextValue(currentValue => ({
+            ...currentValue,
+            state,
+        }));
+    }, [state]);
+
     return (
-        <Div>
-            {panes[0]}
-            <Divider/>
-            {panes[1]}
-        </Div>
-    )
-}
+        <SharedComponentContext.Provider value={contextValue}>
+            <Div>
+                {children[0]}
+                <Divider/>
+                {children[1]}
+            </Div>
+        </SharedComponentContext.Provider>
+
+    );
+};
+
