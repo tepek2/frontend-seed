@@ -20,19 +20,22 @@ export const useSharedState = () => {
     return {state, setOrientation};
 };
 
+const DividerHorizontal = styled.div`cursor: row-resize; height: 10px; margin: -5px 0;`;
+const DividerVertical = styled.div`cursor: col-resize; width: 10px; margin: 0 -5px;`;
+
+const FlexHorizontal = styled.div`display: flex; flex-direction: column;`;
+const FlexVertical = styled.div`display: flex; flex-direction: row;`;
+
 export const SplitPane = ({ children, orientation }: SplitPaneProps) => {
-    const FlexStyle = {
-        [VERTICAL]: 'display: flex; flex-direction: row;',
-        [HORIZONTAL]: 'display: flex; flex-direction: column;',
-    };
+    const Flex = {
+        [VERTICAL]: FlexVertical,
+        [HORIZONTAL]: FlexHorizontal,
+    }[orientation];
 
-    const DividerStyles = {
-        [VERTICAL]: 'cursor: col-resize; width: 10px; margin: 0 -5px;',
-        [HORIZONTAL]: 'cursor: row-resize; height: 10px; margin: -5px 0;',
-    };
-
-    const Div = styled.div`${FlexStyle[orientation]}`
-    const Divider = styled.span`${DividerStyles[orientation]}`
+    const Divider = {
+        [VERTICAL]: DividerVertical,
+        [HORIZONTAL]: DividerHorizontal
+    }[orientation];
 
     const [state, setState] =useState({ ...defaultState, orientation }); 
     
@@ -54,11 +57,11 @@ export const SplitPane = ({ children, orientation }: SplitPaneProps) => {
 
     return (
         <SharedComponentContext.Provider value={contextValue}>
-            <Div>
+            <Flex>
                 {children[0]}
                 <Divider/>
                 {children[1]}
-            </Div>
+            </Flex>
         </SharedComponentContext.Provider>
 
     );

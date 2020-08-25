@@ -9,22 +9,24 @@ interface PaneProps {
     minSize?: string
 };
 
+const DivVertical = styled.div`width: ${(props: any) => props.size}`;
+const DivHorizontal = styled.div`height: ${(props: any) => props.size}`;
+
 export const Pane = ({
     children,
     size,
     minSize,
 }: PaneProps): PaneType => {
-    const paneStyle = {
-        [VERTICAL]: `width: ${size}`,
-        [HORIZONTAL]: `height: ${size}`,
-    };
 
     const { state } = useSharedState(); 
 
-    const Div = styled.div`${paneStyle[state.orientation as Orientation]}`;
+    const Div = {
+        [VERTICAL]: DivVertical,
+        [HORIZONTAL]: DivHorizontal,
+    }[state.orientation as Orientation] as any;
 
     return (
-        <Div>
+        <Div size={size}>
             {children}
         </Div>
     )
