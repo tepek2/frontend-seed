@@ -9,3 +9,13 @@ export interface SplitPaneProps {
     children: PaneType[]
     orientation: Orientation
 };
+
+export interface SharedContextState {
+    orientation: Orientation
+    size: string
+}
+
+export interface SharedContextProps {
+    state: SharedContextState
+    setState: (key: string, val: string) => void
+};

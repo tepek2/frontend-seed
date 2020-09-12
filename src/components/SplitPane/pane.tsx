@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useSharedState } from './index';
-import { PaneType, Orientation, VERTICAL, HORIZONTAL } from './splitPaneTypes';
+import { PaneType, VERTICAL, HORIZONTAL } from './splitPaneTypes';
 
 interface PaneProps {
     children: JSX.Element
@@ -18,15 +18,17 @@ export const Pane = ({
     minSize,
 }: PaneProps): PaneType => {
 
-    const { state } = useSharedState(); 
+    const { state, setSize } = useSharedState(); 
+
+    // if (!!size) {setSize(size)};
 
     const Div = {
         [VERTICAL]: DivVertical,
         [HORIZONTAL]: DivHorizontal,
-    }[state.orientation as Orientation] as any;
+    }[state.orientation] as any;
 
     return (
-        <Div size={size}>
+        <Div size={state.size}>
             {children}
         </Div>
     )
