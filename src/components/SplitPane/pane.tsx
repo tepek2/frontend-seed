@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useSharedState } from './index';
-import { PaneType, VERTICAL, HORIZONTAL } from './splitPaneTypes';
+import { PaneType, VERTICAL, HORIZONTAL, Orientation } from './splitPaneTypes';
 
 interface PaneProps {
     children: JSX.Element
@@ -9,26 +8,32 @@ interface PaneProps {
     minSize?: string
 };
 
-const DivVertical = styled.div`width: ${(props: any) => props.size}`;
-const DivHorizontal = styled.div`height: ${(props: any) => props.size}`;
+interface PaneWrapperProps {
+    children: PaneType
+    size?: string
+    orientation: Orientation
+};
 
 export const Pane = ({
     children,
     size,
     minSize,
 }: PaneProps): PaneType => {
+    return children;
+};
 
-    const { state, setSize } = useSharedState(); 
-
-    // if (!!size) {setSize(size)};
-
+export const PaneWrapper = ({
+    children,
+    size,
+    orientation,
+}: PaneWrapperProps): JSX.Element => {
     const Div = {
-        [VERTICAL]: DivVertical,
-        [HORIZONTAL]: DivHorizontal,
-    }[state.orientation] as any;
+        [VERTICAL]: styled.div`width: ${(props: any) => props.size}`,
+        [HORIZONTAL]: styled.div`height: ${(props: any) => props.size}`,
+    }[orientation] as any;
 
     return (
-        <Div size={state.size}>
+        <Div size={size}>
             {children}
         </Div>
     )

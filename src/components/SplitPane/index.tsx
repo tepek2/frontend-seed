@@ -1,18 +1,8 @@
-import React, { createContext, useState, useEffect, useContext, useRef } from 'react';
+import React, { useEffect, useState ,useRef } from 'react';
 import styled from 'styled-components';
-import { SharedContextProps, SplitPaneProps, VERTICAL, HORIZONTAL } from './splitPaneTypes';
+import { SplitPaneProps, VERTICAL, HORIZONTAL } from './splitPaneTypes';
+import { PaneWrapper } from './pane';
 export { Pane } from './pane';
-
-const SharedComponentContext = createContext<any>(null);
-
-export const useSharedState = () => {
-    const {state, setState} = useContext<SharedContextProps>(SharedComponentContext);
-
-    const setOrientation = (orientation: string) => setState('orientation', orientation);
-    const setSize = (orientation: string) => setState('size', orientation);
-
-    return {state, setOrientation, setSize};
-};
 
 const DividerHorizontal = styled.div`cursor: row-resize; height: 10px; margin: -5px 0;`;
 const DividerVertical = styled.div`cursor: col-resize; width: 10px; margin: 0 -5px;`;
@@ -21,6 +11,14 @@ const FlexHorizontal = styled.div`display: flex; flex-direction: column;`;
 const FlexVertical = styled.div`display: flex; flex-direction: row;`;
 
 export const SplitPane = ({ children, orientation }: SplitPaneProps) => {
+
+    const minSize0 = children[0].props.minSize;
+    const minSize1 = children[1].props.minSize;
+
+    const [size0, setSize0] = useState(children[0].props.size)
+    const [size1, setSize1] = useState(children[1].props.size)
+
+
     const Flex = {
         [VERTICAL]: FlexVertical,
         [HORIZONTAL]: FlexHorizontal,
@@ -30,24 +28,6 @@ export const SplitPane = ({ children, orientation }: SplitPaneProps) => {
         [VERTICAL]: DividerVertical,
         [HORIZONTAL]: DividerHorizontal
     }[orientation];
-
-    const [state, setState] = useState({ orientation }); 
-    
-    const [contextValue, setContextValue] = useState({
-        state,
-        setState: (key: string, val: string) => {
-            setState(state => {
-                return { ...state, [key]: val};
-            });
-        }
-    });
-
-    useEffect(() => {
-        setContextValue(currentValue => ({
-            ...currentValue,
-            state,
-        }));
-    }, [state]);
 
     const dividerPosition = useRef<number | null>();
 
@@ -80,13 +60,14 @@ export const SplitPane = ({ children, orientation }: SplitPaneProps) => {
     })
 
     return (
-        <SharedComponentContext.Provider value={contextValue}>
-            <Flex>
+        <Flex>
+            <PaneWrapper orientation={orientation} size={size0}>
                 {children[0]}
-                <Divider onMouseDown={onMouseDown}/>
+            </PaneWrapper>
+            <Divider onMouseDown={onMouseDown}/>
+            <PaneWrapper orientation={orientation} size={size1}>
                 {children[1]}
-            </Flex>
-        </SharedComponentContext.Provider>
-
+            </PaneWrapper>
+        </Flex>
     );
 };
